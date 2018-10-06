@@ -346,6 +346,44 @@ void setup(){
   progRegs.loadPacket(1,RegisterList::idlePacket,2,0);    // load idle packet into register 1    
       
   bitSet(TIMSK0,OCIE0B);    // enable interrupt vector for Timer 0 Output Compare B Match (OCR0B)
+  
+#elif ARDUINO_AVR_NANO      // Configuration for NANO
+  
+  // Directon Pin for Motor Shield Channel B - PROGRAMMING TRACK
+  // Controlled by Arduino 8-bit TIMER 0 / OC0B Interrupt Pin
+  // Values for 8-bit OCR0A and OCR0B registers calibrated for 1:64 prescale at 16 MHz clock frequency
+  // Resulting waveforms are 200 microseconds for a ZERO bit and 116 microseconds for a ONE bit with as-close-as-possible to 50% duty cycle
+
+  #define DCC_ZERO_BIT_TOTAL_DURATION_TIMER0 49
+  #define DCC_ZERO_BIT_PULSE_DURATION_TIMER0 24
+
+  #define DCC_ONE_BIT_TOTAL_DURATION_TIMER0 28
+  #define DCC_ONE_BIT_PULSE_DURATION_TIMER0 14
+  
+  pinMode(DIRECTION_MOTOR_CHANNEL_PIN_B,INPUT);      // ensure this pin is not active! Direction will be controlled by DCC SIGNAL instead (below)
+  digitalWrite(DIRECTION_MOTOR_CHANNEL_PIN_B,LOW);
+
+  pinMode(DCC_SIGNAL_PIN_PROG,OUTPUT);      // THIS ARDUINO OUTPUT PIN MUST BE PHYSICALLY CONNECTED TO THE PIN FOR DIRECTION-B OF MOTOR CHANNEL-B
+
+  bitSet(TCCR0A,WGM00);     // set Timer 0 to FAST PWM, with TOP=OCR0A
+  bitSet(TCCR0A,WGM01);
+  bitSet(TCCR0B,WGM02);
+     
+  bitSet(TCCR0A,COM0B1);    // set Timer 0, OC0B (pin 5) to inverting toggle (actual direction is arbitrary)
+  bitSet(TCCR0A,COM0B0);
+
+  bitClear(TCCR0B,CS02);    // set Timer 0 prescale=64
+  bitSet(TCCR0B,CS01);
+  bitSet(TCCR0B,CS00);
+    
+  OCR0A=DCC_ONE_BIT_TOTAL_DURATION_TIMER0;
+  OCR0B=DCC_ONE_BIT_PULSE_DURATION_TIMER0;
+  
+  pinMode(SIGNAL_ENABLE_PIN_PROG,OUTPUT);   // master enable for motor channel B
+
+  progRegs.loadPacket(1,RegisterList::idlePacket,2,0);    // load idle packet into register 1    
+      
+  bitSet(TIMSK0,OCIE0B);    // enable interrupt vector for Timer 0 Output Compare B Match (OCR0B)
 
 #else      // Configuration for MEGA
 
@@ -464,6 +502,12 @@ ISR(TIMER0_COMPB_vect){              // set interrupt service for OCR1B of TIMER
   DCC_SIGNAL(progRegs,0)
 }
 
+#elif ARDUINO_AVR_NANO      // Configuration for NANO
+
+ISR(TIMER0_COMPB_vect){              // set interrupt service for OCR1B of TIMER-0 which flips direction bit of Motor Shield Channel B controlling Prog Track
+  DCC_SIGNAL(progRegs,0)
+}
+
 #else      // Configuration for MEGA
 
 ISR(TIMER3_COMPB_vect){              // set interrupt service for OCR3B of TIMER-3 which flips direction bit of Motor Shield Channel B controlling Prog Track
@@ -557,7 +601,3 @@ void showConfiguration(){
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-
-
-
-

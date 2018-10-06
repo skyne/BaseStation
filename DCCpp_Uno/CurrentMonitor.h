@@ -17,6 +17,8 @@ Part of DCC++ BASE STATION for the Arduino
 
 #ifdef ARDUINO_AVR_UNO                        // Configuration for UNO
   #define  CURRENT_SAMPLE_TIME        10
+#elif ARDUINO_AVR_NANO                        // Configuration for NANO
+  #define  CURRENT_SAMPLE_TIME        10               
 #else                                         // Configuration for MEGA    
   #define  CURRENT_SAMPLE_TIME        1
 #endif
@@ -32,4 +34,3 @@ struct CurrentMonitor{
 };
 
 #endif
-

@@ -39,6 +39,19 @@ Part of DCC++ BASE STATION for the Arduino
 
   #endif
 
+#elif defined  ARDUINO_AVR_NANO
+
+  #define ARDUINO_TYPE    "NANO"
+
+  #define DCC_SIGNAL_PIN_MAIN 10          // Ardunio Nano  - uses OC1B
+  #define DCC_SIGNAL_PIN_PROG 5           // Arduino Nano  - uses OC0B
+
+  #if COMM_INTERFACE != 0                 // Serial was not selected
+
+    #error CANNOT COMPILE - DCC++ FOR THE UNO CAN ONLY USE SERIAL COMMUNICATION - PLEASE SELECT THIS IN THE CONFIG FILE
+
+  #endif
+
 #elif defined  ARDUINO_AVR_MEGA2560
 
   #define ARDUINO_TYPE    "MEGA"
@@ -131,5 +144,3 @@ Part of DCC++ BASE STATION for the Arduino
 /////////////////////////////////////////////////////////////////////////////////////
 
 #endif
-
-

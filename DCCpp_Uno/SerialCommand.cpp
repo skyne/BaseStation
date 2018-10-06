@@ -464,6 +464,12 @@ void SerialCommand::parse(char *com){
       bitClear(TCCR0B,CS01);
       bitClear(TCCR0B,CS00);
       
+    #elif ARDUINO_AVR_NANO      // Configuration for NANO
+
+      bitSet(TCCR0B,CS02);    // set Timer 0 prescale=256 - SLOWS NORMAL SPEED BY A FACTOR OF 4
+      bitClear(TCCR0B,CS01);
+      bitClear(TCCR0B,CS00);
+        
     #else                     // Configuration for MEGA
 
       bitClear(TCCR3B,CS32);    // set Timer 3 prescale=8 - SLOWS NORMAL SPEED BY A FACTOR OF 8
@@ -567,5 +573,3 @@ void SerialCommand::parse(char *com){
 }; // SerialCommand::parse
 
 ///////////////////////////////////////////////////////////////////////////////
-
-
